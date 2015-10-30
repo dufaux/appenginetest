@@ -4,7 +4,7 @@
         <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
         <init-param>
             <param-name>services</param-name>
-            <param-value>fil.iagl.appengine.Greetings</param-value>
+            <param-value>fil.iagl.appengine.Greetings,fil.iagl.appengine.spi.AnnonceApi</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
