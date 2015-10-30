@@ -9,9 +9,9 @@
     <artifactId>appengine</artifactId>
 
     <properties>
-        <app.id>your-app-id</app.id>
+        <app.id>tpiagl-1</app.id>
         <app.version>1</app.version>
-        <appengine.version>1.9.27</appengine.version>
+        <appengine.version>1.9.28</appengine.version>
         <gcloud.plugin.version>2.0.9.74.v20150814</gcloud.plugin.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
