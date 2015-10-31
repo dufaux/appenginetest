@@ -1,7 +1,9 @@
-/home/m2iagl/dufaux/workspaceJEE/appenginetest/src/main/java/fil/iagl/appengine/spi/AnnonceApi.java
-/home/m2iagl/dufaux/workspaceJEE/appenginetest/src/main/java/fil/iagl/appengine/domain/Annonce.java
-/home/m2iagl/dufaux/workspaceJEE/appenginetest/src/main/java/fil/iagl/appengine/HelloGreeting.java
-/home/m2iagl/dufaux/workspaceJEE/appenginetest/src/main/java/fil/iagl/appengine/domain/Profile.java
-/home/m2iagl/dufaux/workspaceJEE/appenginetest/src/main/java/fil/iagl/appengine/Constants.java
-/home/m2iagl/dufaux/workspaceJEE/appenginetest/src/main/java/fil/iagl/appengine/form/ProfileForm.java
-/home/m2iagl/dufaux/workspaceJEE/appenginetest/src/main/java/fil/iagl/appengine/Greetings.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/Constants.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/form/AnnonceForm.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/form/ProfileForm.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/HelloGreeting.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/exception/badrequest.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/spi/AnnonceApi.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/domain/Annonce.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/domain/Profile.java
+/home/dufaux/workspace/appenginetest/src/main/java/fil/iagl/appengine/Greetings.java

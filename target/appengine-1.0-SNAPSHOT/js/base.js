@@ -1,8 +1,8 @@
 
 /**
  * @fileoverview
- * Provides methods for the Hello Endpoints sample UI and interaction with the
- * Hello Endpoints API.
+ * Provides methods for the annonce Endpoints sample UI and interaction with the
+ * annonce Endpoints API.
  *
  * @author danielholevoet@google.com (Dan Holevoet)
  */
@@ -10,44 +10,53 @@
 /** google global namespace for Google projects. */
 var google = google || {};
 
-/** devrel namespace for Google Developer Relations projects. */
-google.devrel = google.devrel || {};
+/** fil namespace for Google Developer Relations projects. */
+google.fil = google.fil || {};
 
-/** samples namespace for DevRel sample code. */
-google.devrel.samples = google.devrel.samples || {};
+/** appengine namespace for fil sample code. */
+google.fil.appengine = google.fil.appengine || {};
 
-/** hello namespace for this sample. */
-google.devrel.samples.hello = google.devrel.samples.hello || {};
+/** annonce namespace for this sample. */
+google.fil.appengine.annonce = google.fil.appengine.annonce || {};
 
 /**
  * Client ID of the application (from the APIs Console).
  * @type {string}
  */
-google.devrel.samples.hello.CLIENT_ID =
-    'replace this with your web client ID';
+google.fil.appengine.annonce.CLIENT_ID = 
+    '368602197734-20d5cmpco2ci41matdrarqfpufv9q7gl.apps.googleusercontent.com';
 
 /**
  * Scopes used by the application.
  * @type {string}
  */
-google.devrel.samples.hello.SCOPES =
+google.fil.appengine.annonce.SCOPES =
     'https://www.googleapis.com/auth/userinfo.email';
 
 /**
  * Whether or not the user is signed in.
  * @type {boolean}
  */
-google.devrel.samples.hello.signedIn = false;
+google.fil.appengine.annonce.signedIn = false;
 
 /**
  * Loads the application UI after the user has completed auth.
  */
-google.devrel.samples.hello.userAuthed = function() {
+google.fil.appengine.annonce.userAuthed = function() {
   var request = gapi.client.oauth2.userinfo.get().execute(function(resp) {
     if (!resp.code) {
-      google.devrel.samples.hello.signedIn = true;
+      google.fil.appengine.annonce.signedIn = true;
       document.getElementById('signinButton').innerHTML = 'Sign out';
       document.getElementById('authedGreeting').disabled = false;
+      
+      // si pas de profile, on en crée un par defaut et le recupere.
+      try{
+          google.fil.appengine.annonce.getProfile();
+      }
+      catch(err){
+          google.fil.appengine.annonce.saveProfile();
+          google.fil.appengine.annonce.getProfile();
+      }
     }
   });
 };
@@ -57,21 +66,21 @@ google.devrel.samples.hello.userAuthed = function() {
  * @param {boolean} mode Whether or not to use immediate mode.
  * @param {Function} callback Callback to call on completion.
  */
-google.devrel.samples.hello.signin = function(mode, callback) {
-  gapi.auth.authorize({client_id: google.devrel.samples.hello.CLIENT_ID,
-      scope: google.devrel.samples.hello.SCOPES, immediate: mode},
-      callback);
+google.fil.appengine.annonce.signin = function(mode, callback) {
+  gapi.auth.authorize({client_id : google.fil.appengine.annonce.CLIENT_ID,
+				       scope     : google.fil.appengine.annonce.SCOPES, 
+				       immediate : mode},
+				      callback);
 };
 
 /**
  * Presents the user with the authorization popup.
  */
-google.devrel.samples.hello.auth = function() {
-  if (!google.devrel.samples.hello.signedIn) {
-    google.devrel.samples.hello.signin(false,
-        google.devrel.samples.hello.userAuthed);
+google.fil.appengine.annonce.auth = function() {
+  if (!google.fil.appengine.annonce.signedIn) {
+    google.fil.appengine.annonce.signin(false, google.fil.appengine.annonce.userAuthed);
   } else {
-    google.devrel.samples.hello.signedIn = false;
+    google.fil.appengine.annonce.signedIn = false;
     document.getElementById('signinButton').innerHTML = 'Sign in';
     document.getElementById('authedGreeting').disabled = true;
   }
@@ -81,38 +90,70 @@ google.devrel.samples.hello.auth = function() {
  * Prints a greeting to the greeting log.
  * param {Object} greeting Greeting to print.
  */
-google.devrel.samples.hello.print = function(greeting) {
+google.fil.appengine.annonce.print = function(greeting) {
   var element = document.createElement('div');
   element.classList.add('row');
   element.innerHTML = greeting.message;
   document.getElementById('outputLog').appendChild(element);
 };
 
+
+/*
+ * */
+google.fil.appengine.annonce.saveProfile = function(name, city) {
+gapi.client.annonce.greetings.saveProfile({'name' : name, 'city' : city}).execute(
+  function(resp) {
+    if (!resp.code) {
+      google.fil.appengine.annonce.print(resp);
+    } else {
+      window.alert(resp.message);
+    }
+  });
+};
+
 /**
  * Gets a numbered greeting via the API.
  * @param {string} id ID of the greeting.
  */
-google.devrel.samples.hello.getGreeting = function(id) {
-  gapi.client.helloworld.greetings.getGreeting({'id': id}).execute(
+google.fil.appengine.annonce.getProfile = function() {
+  gapi.client.annonce.getProfile().execute(
       function(resp) {
         if (!resp.code) {
-          google.devrel.samples.hello.print(resp);
+          google.fil.appengine.annonce.print(resp);
+          // TO DO REMPLIR PROFILE (genre une fonction remplir profile(resp);
+          console.log(resp);
+          console.log(resp.email);
+          console.log(resp.city);
+          document.getElementById("name").value = resp.name;
+          document.getElementById("city").value = resp.city;
         } else {
-          window.alert(resp.message);
+        	throw "Pas de profile";
         }
       });
 };
+//google.fil.appengine.annonce.getGreeting = function(id) {
+//  gapi.client.annonce.greetings.getGreeting({'id': id}).execute(
+//      function(resp) {
+//        if (!resp.code) {
+//          google.fil.appengine.annonce.print(resp);
+//        } else {
+//          window.alert(resp.message);
+//        }
+//      });
+//};
 
 /**
  * Lists greetings via the API.
  */
-google.devrel.samples.hello.listGreeting = function() {
-  gapi.client.helloworld.greetings.listGreeting().execute(
+google.fil.appengine.annonce.listAnnonce = function() {
+  gapi.client.annonce.getAnnonces().execute(
       function(resp) {
         if (!resp.code) {
           resp.items = resp.items || [];
           for (var i = 0; i < resp.items.length; i++) {
-            google.devrel.samples.hello.print(resp.items[i]);
+            google.fil.appengine.annonce.print(resp.items[i]);
+            //TO DO DISPLAY ANNONCES
+            console.log(resp.items[i]);
           }
         }
       });
@@ -123,14 +164,14 @@ google.devrel.samples.hello.listGreeting = function() {
  * @param {string} greeting Greeting to repeat.
  * @param {string} count Number of times to repeat it.
  */
-google.devrel.samples.hello.multiplyGreeting = function(
+google.fil.appengine.annonce.multiplyGreeting = function(
     greeting, times) {
-  gapi.client.helloworld.greetings.multiply({
+  gapi.client.annonce.greetings.multiply({
       'message': greeting,
       'times': times
     }).execute(function(resp) {
       if (!resp.code) {
-        google.devrel.samples.hello.print(resp);
+        google.fil.appengine.annonce.print(resp);
       }
     });
 };
@@ -138,38 +179,38 @@ google.devrel.samples.hello.multiplyGreeting = function(
 /**
  * Greets the current user via the API.
  */
-google.devrel.samples.hello.authedGreeting = function(id) {
-  gapi.client.helloworld.greetings.authed().execute(
+google.fil.appengine.annonce.authedGreeting = function(id) {
+  gapi.client.annonce.greetings.authed().execute(
       function(resp) {
-        google.devrel.samples.hello.print(resp);
+        google.fil.appengine.annonce.print(resp);
       });
 };
 
 /**
  * Enables the button callbacks in the UI.
  */
-google.devrel.samples.hello.enableButtons = function() {
+google.fil.appengine.annonce.enableButtons = function() {
   document.getElementById('getGreeting').onclick = function() {
-    google.devrel.samples.hello.getGreeting(
+    google.fil.appengine.annonce.getGreeting(
         document.getElementById('id').value);
   }
 
   document.getElementById('listGreeting').onclick = function() {
-    google.devrel.samples.hello.listGreeting();
+    google.fil.appengine.annonce.listGreeting();
   }
 
   document.getElementById('multiplyGreetings').onclick = function() {
-    google.devrel.samples.hello.multiplyGreeting(
+    google.fil.appengine.annonce.multiplyGreeting(
         document.getElementById('greeting').value,
         document.getElementById('count').value);
   }
 
   document.getElementById('authedGreeting').onclick = function() {
-    google.devrel.samples.hello.authedGreeting();
+    google.fil.appengine.annonce.authedGreeting();
   }
   
   document.getElementById('signinButton').onclick = function() {
-    google.devrel.samples.hello.auth();
+    google.fil.appengine.annonce.auth();
   }
 };
 
@@ -177,19 +218,19 @@ google.devrel.samples.hello.enableButtons = function() {
  * Initializes the application.
  * @param {string} apiRoot Root of the API's path.
  */
-google.devrel.samples.hello.init = function(apiRoot) {
-  // Loads the OAuth and helloworld APIs asynchronously, and triggers login
+google.fil.appengine.annonce.init = function(apiRoot) {
+  // Loads the OAuth and annonce APIs asynchronously, and triggers login
   // when they have completed.
   var apisToLoad;
   var callback = function() {
     if (--apisToLoad == 0) {
-      google.devrel.samples.hello.enableButtons();
-      google.devrel.samples.hello.signin(true,
-          google.devrel.samples.hello.userAuthed);
+      google.fil.appengine.annonce.enableButtons();
+      google.fil.appengine.annonce.listAnnonce();
+      google.fil.appengine.annonce.signin(true,google.fil.appengine.annonce.userAuthed);
     }
   }
 
   apisToLoad = 2; // must match number of calls to gapi.client.load()
-  gapi.client.load('helloworld', 'v1', callback, apiRoot);
+  gapi.client.load('annonce', 'v1', callback, apiRoot);
   gapi.client.load('oauth2', 'v2', callback);
 };

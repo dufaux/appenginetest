@@ -10,7 +10,7 @@ public class ProfileForm {
 	private String city;
 	
 	public ProfileForm(){
-		this.name = "Unknown";
+		this.name = null;
 		this.city = "Unknown";
 	}
 	public ProfileForm(String name, String city){

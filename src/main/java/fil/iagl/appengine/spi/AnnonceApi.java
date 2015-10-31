@@ -1,5 +1,7 @@
 package fil.iagl.appengine.spi;
 
+import java.util.ArrayList;
+
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiMethod.HttpMethod;
@@ -10,10 +12,14 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
 
 import fil.iagl.appengine.Constants;
+import fil.iagl.appengine.domain.Annonce;
 import fil.iagl.appengine.domain.Profile;
+import fil.iagl.appengine.form.AnnonceForm;
 import fil.iagl.appengine.form.ProfileForm;
 
 @Api(name ="annonce", 
@@ -34,6 +40,9 @@ public class AnnonceApi {
 			throw new UnauthorizedException("Veuillez vous identifier");
 		}
 	}
+	
+	
+	/* GESTION DU PROFIL */
 	
 	
 	@ApiMethod(name = "saveProfile", path = "profile", httpMethod = HttpMethod.POST)
@@ -64,7 +73,6 @@ public class AnnonceApi {
 		return profile;
 	}
 	
-	
 	@ApiMethod(name = "getProfile", path="profile", httpMethod = HttpMethod.GET)
 	public Profile getProfile(final User user) throws UnauthorizedException{
 		CheckUser(user);
@@ -79,13 +87,51 @@ public class AnnonceApi {
 			String name = (String) profileStored.getProperty("name");
 			String city = (String) profileStored.getProperty("city");
 			
-			profile = new Profile(userId,email,name,city);
+			profile = new Profile(userId,name,email,city);
 		} catch (EntityNotFoundException e) {
 			
 			e.printStackTrace();
 		}
-		
-
 		return profile;
+	}
+	
+/* GESTION DES ANNONCES */
+	
+	@ApiMethod(name = "addAnnonce", path="addAnnonce", httpMethod = HttpMethod.POST)
+	public Annonce addAnnonce(final User user,AnnonceForm new_annonce) throws UnauthorizedException{
+		CheckUser(user);
+		Annonce annonce = new Annonce(user.getUserId(),new_annonce.getName(),new_annonce.getDescription());
+		
+		Key profileKey = KeyFactory.createKey("Profile",user.getUserId());
+		Entity profileStored;
+		try {
+			profileStored = datastore.get(profileKey);
+			
+			Entity annonceStored = new Entity("Annonce",new_annonce.getName(),profileStored.getKey());
+			annonceStored.setProperty("userId", annonce.getUserId());
+			annonceStored.setProperty("name", annonce.getName());
+			annonceStored.setProperty("description", annonce.getDescription());
+			datastore.put(annonceStored);
+			
+			
+		}catch (EntityNotFoundException e) {
+			e.printStackTrace();
+		}
+		return annonce;
+	}
+	
+	@ApiMethod(name = "getAnnonces", path="getAnnonces", httpMethod = HttpMethod.GET)
+	public ArrayList<Annonce> getAnnonces(){
+		Query q = new Query("Annonce");
+		PreparedQuery pq = datastore.prepare(q);
+		ArrayList<Annonce> annonces = new ArrayList<Annonce>();
+		for (Entity r : pq.asIterable()) {
+			Annonce an = new Annonce((String) r.getProperty("userId"),
+									(String) r.getProperty("name"),
+									(String) r.getProperty("description"));
+			annonces.add(an);
+		}
+		return annonces;
+		
 	}
 }
