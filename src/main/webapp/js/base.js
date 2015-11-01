@@ -43,6 +43,7 @@ google.fil.appengine.annonce.signedIn = false;
  * Loads the application UI after the user has completed auth.
  */
 google.fil.appengine.annonce.userAuthed = function() {
+  console.log("google.fil.appengine.annonce.userAuthed");
   var request = gapi.client.oauth2.userinfo.get().execute(function(resp) {
     if (!resp.code) {
       google.fil.appengine.annonce.signedIn = true;
@@ -50,13 +51,10 @@ google.fil.appengine.annonce.userAuthed = function() {
       document.getElementById('authedGreeting').disabled = false;
       
       // si pas de profile, on en crée un par defaut et le recupere.
-      try{
-          google.fil.appengine.annonce.getProfile();
-      }
-      catch(err){
-          google.fil.appengine.annonce.saveProfile();
-          google.fil.appengine.annonce.getProfile();
-      }
+          var si_profile_inexistant = function(){
+        	  google.fil.appengine.annonce.saveProfile(null,null,google.fil.appengine.annonce.getProfile());
+          }
+          google.fil.appengine.annonce.getProfile(si_profile_inexistant);
     }
   });
 };
@@ -100,11 +98,15 @@ google.fil.appengine.annonce.print = function(greeting) {
 
 /*
  * */
-google.fil.appengine.annonce.saveProfile = function(name, city) {
-gapi.client.annonce.greetings.saveProfile({'name' : name, 'city' : city}).execute(
+google.fil.appengine.annonce.saveProfile = function(name, city, callback) {
+console.log("google.fil.appengine.annonce.saveProfile");
+gapi.client.annonce.saveProfile({'name' : name, 'city' : city}).execute(
   function(resp) {
     if (!resp.code) {
       google.fil.appengine.annonce.print(resp);
+      if(typeof callback == "function"){
+    	  callback();
+	  }
     } else {
       window.alert(resp.message);
     }
@@ -115,21 +117,34 @@ gapi.client.annonce.greetings.saveProfile({'name' : name, 'city' : city}).execut
  * Gets a numbered greeting via the API.
  * @param {string} id ID of the greeting.
  */
-google.fil.appengine.annonce.getProfile = function() {
-  gapi.client.annonce.getProfile().execute(
-      function(resp) {
-        if (!resp.code) {
-          google.fil.appengine.annonce.print(resp);
-          // TO DO REMPLIR PROFILE (genre une fonction remplir profile(resp);
-          console.log(resp);
-          console.log(resp.email);
-          console.log(resp.city);
-          document.getElementById("name").value = resp.name;
-          document.getElementById("city").value = resp.city;
-        } else {
-        	throw "Pas de profile";
-        }
-      });
+google.fil.appengine.annonce.getProfile = function(callback) {
+  console.log("google.fil.appengine.annonce.getProfile");
+  try{
+	  gapi.client.annonce.getProfile().execute(
+	      function(resp) {
+	        if (!resp.code) {
+	          google.fil.appengine.annonce.print(resp);
+	          console.log(resp);
+	          console.log(resp.email);
+	          console.log(resp.city);
+	          console.log(resp.userId);
+	          //Si pas de userId alors pas de profile.
+	          if(! resp.userId){
+	        	  if(typeof callback == "function"){
+		        	  callback();
+	        	  }
+	          }
+	       // TO DO REMPLIR PROFILE (genre une fonction remplir profile(resp);
+	          document.getElementById("name").value = resp.name;
+	          document.getElementById("city").value = resp.city;
+	          
+	        } else {
+	        	window.alert(resp.message);
+	        }
+	      });  
+  }catch(err){
+	  throw "Pas de profile";
+  }
 };
 //google.fil.appengine.annonce.getGreeting = function(id) {
 //  gapi.client.annonce.greetings.getGreeting({'id': id}).execute(
